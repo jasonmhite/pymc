@@ -1,9 +1,10 @@
 from dist_math import *
 
-__all__ = ['MvNormal', 'Dirichlet', 'Multinomial', 'Wishart']
+__all__ = ['MvNormal', 'Dirichlet', 'Multinomial', 'Wishart', 'MvUniform']
 
 from theano.sandbox.linalg import det, solve, trace
 from theano.tensor import dot
+import theano.tensor as T
 
 
 @tensordist(continuous)
@@ -164,3 +165,16 @@ def Wishart(n, p, V):
                   nan)
 
     return locals()
+
+@tensordist(continuous)
+def MvUniform(lower, upper):
+    def logp(value):
+        return bound(T.log(T.prod(upper - lower)),
+                T.ge(value, lower).all(),
+                T.le(value, upper).all())
+
+    mean = 0.5 * (lower + upper)
+    median = mean
+
+    return locals()
+
